@@ -8,10 +8,15 @@ import (
 	"os"
 )
 
+type Rules struct {
+	Name    string   `json:"name"`
+	Domain  []string `json:"domain,omitempty"`
+	Process []string `json:"process,omitempty"`
+}
+
 type Config struct {
-	Proxy   map[string]any `json:"proxy"`
-	Domain  []string       `json:"domain,omitempty"`
-	Process []string       `json:"process,omitempty"`
+	Proxy map[string]any `json:"proxy"`
+	Rules Rules          `json:"rules,omitempty"`
 }
 
 func ParseConfig(file string) *Config {
@@ -30,35 +35,6 @@ func ParseConfig(file string) *Config {
 }
 
 func main() {
-	// a := &Config{
-	// 	Proxy: map[string]any{
-	// 		"name":             "vmess-node",
-	// 		"type":             "vmess",
-	// 		"server":           "127.0.0.1",
-	// 		"port":             2801,
-	// 		"uuid":             "3e976926-ea42-4dc8-99f5-560803dc573c",
-	// 		"alterId":          0,
-	// 		"cipher":           "auto",
-	// 		"tls":              false,
-	// 		"skip-cert-verify": true,
-	// 		"udp":              true,
-	// 	},
-	// 	Domain: []string{
-	// 		"DOMAIN-SUFFIX,baidu.com",
-	// 		"DOMAIN-SUFFIX,google.com",
-	// 	},
-	// 	Process: []string{
-	// 		"MapleStory.exe",
-	// 	},
-	// }
-	// data, err := json.MarshalIndent(a, "", "  ")
-	// if err != nil {
-	// 	log.Fatalf("Failed to marshal default config: %v", err)
-	// }
-	// os.WriteFile("config.json", data, 0644)
-
-	// return
-
 	port := flag.String("p", "2801", "Port to run the server on")
 	config := flag.String("c", "config.json", "Path to the configuration file")
 
@@ -70,6 +46,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to listen on %s: %v", addr, err)
 	}
+	defer ln.Close()
+
+	proxy := NewProxy(globalConfig.Proxy)
+	defer proxy.Close()
+
+	log.Printf("%s server: %s listening on %s", proxy.Type(), proxy.Name(), addr)
 
 	for {
 		conn, err := ln.Accept()
@@ -77,6 +59,6 @@ func main() {
 			log.Printf("Failed to accept connection: %v", err)
 			continue
 		}
-		go globalConfig.handleConnection(conn)
+		go proxy.handleConnection(conn)
 	}
 }

@@ -9,12 +9,22 @@ import (
 	"net"
 	"net/netip"
 
-	"github.com/metacubex/mihomo/adapter/outbound"
+	"github.com/metacubex/mihomo/adapter"
 	"github.com/metacubex/mihomo/constant"
 )
 
 type Proxy struct {
-	outbound outbound.ProxyAdapter
+	constant.Proxy
+}
+
+func NewProxy(mapping map[string]any) *Proxy {
+	proxy, err := adapter.ParseProxy(mapping)
+	if err != nil {
+		log.Fatalf("Failed to parse proxy: %v", err)
+	}
+	return &Proxy{
+		Proxy: proxy,
+	}
 }
 
 func (p *Proxy) handleConnection(conn net.Conn) {
@@ -79,6 +89,7 @@ func (p *Proxy) HandleSocks5(r *bufio.Reader, conn net.Conn) {
 		ip := net.IP(addr[:4])
 		metadata.DstIP = netip.MustParseAddr(ip.String())
 		metadata.DstPort = binary.BigEndian.Uint16(addr[4:])
+		log.Printf("[%s] Connecting to: %s:%d\n", p.Type(), metadata.DstIP, metadata.DstPort)
 
 	case 0x03: // Domain
 		lenByte, err := r.ReadByte()
@@ -93,19 +104,19 @@ func (p *Proxy) HandleSocks5(r *bufio.Reader, conn net.Conn) {
 		}
 		metadata.Host = string(domain[:lenByte])
 		metadata.DstPort = binary.BigEndian.Uint16(domain[lenByte:])
+		log.Printf("[%s] Connecting to: %s:%d\n", p.Type(), metadata.Host, metadata.DstPort)
 
 	default:
 		log.Println("[SOCKS5] Unsupported address type")
 		conn.Write([]byte{0x05, 0x08, 0x00, 0x01, 0, 0, 0, 0, 0, 0}) // address type not supported
 		return
 	}
-	log.Printf("[%s] Connecting to: %s:%d\n", p.outbound.Type(), metadata.DstIP, metadata.DstPort)
 
 	// Dial through the proxy
 	ctx := context.Background()
-	dstConn, err := p.outbound.DialContext(ctx, metadata)
+	dstConn, err := p.DialContext(ctx, metadata)
 	if err != nil {
-		log.Println("[SOCKS5] Dial error:", err)
+		log.Printf("[%s] Dial error: %v", p.Type(), err)
 		conn.Write([]byte{0x05, 0x05, 0x00, 0x01, 0, 0, 0, 0, 0, 0}) // connection refused
 		return
 	}
