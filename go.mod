@@ -2,7 +2,11 @@ module github.com/InWILL/MioSocks
 
 go 1.24.2
 
-require github.com/metacubex/mihomo v1.19.12
+require (
+	github.com/imgk/divert-go v0.1.0
+	github.com/imgk/shadow v0.0.0-20200807110908-5ffdc22106cb
+	github.com/metacubex/mihomo v1.19.12
+)
 
 require (
 	github.com/3andne/restls-client-go v0.1.6 // indirect

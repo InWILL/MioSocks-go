@@ -6,17 +6,22 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/InWILL/MioSocks/engine"
 )
 
 type Rules struct {
-	Name    string   `json:"name"`
 	Domain  []string `json:"domain,omitempty"`
 	Process []string `json:"process,omitempty"`
 }
 
 type Config struct {
-	Proxy map[string]any `json:"proxy"`
-	Rules Rules          `json:"rules,omitempty"`
+	Proxy     map[string]any `json:"proxy"`
+	Rules     Rules          `json:"rules,omitempty"`
+	ProxyFile string         `json:"proxyfile,omitempty"`
+	RuleFile  string         `json:"rulefile,omitempty"`
 }
 
 func ParseConfig(file string) *Config {
@@ -35,6 +40,14 @@ func ParseConfig(file string) *Config {
 }
 
 func main() {
+	engine := engine.NewEngine()
+	engine.Start()
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+	<-sigCh
+	return
+
 	port := flag.String("p", "2801", "Port to run the server on")
 	config := flag.String("c", "config.json", "Path to the configuration file")
 
