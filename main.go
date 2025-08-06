@@ -6,10 +6,9 @@ import (
 	"log"
 	"net"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/InWILL/MioSocks/engine"
+	"github.com/InWILL/MioSocks/proxy"
 )
 
 type Rules struct {
@@ -40,14 +39,6 @@ func ParseConfig(file string) *Config {
 }
 
 func main() {
-	engine := engine.NewEngine()
-	engine.Start()
-
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-	<-sigCh
-	return
-
 	port := flag.String("p", "2801", "Port to run the server on")
 	config := flag.String("c", "config.json", "Path to the configuration file")
 
@@ -61,10 +52,12 @@ func main() {
 	}
 	defer ln.Close()
 
-	proxy := NewProxy(globalConfig.Proxy)
-	defer proxy.Close()
+	dialer := proxy.NewProxy(globalConfig.Proxy)
+	defer dialer.Close()
 
-	log.Printf("%s server: %s listening on %s", proxy.Type(), proxy.Name(), addr)
+	log.Printf("%s server: %s listening on %s", dialer.Type(), dialer.Name(), addr)
+	engine := engine.NewEngine(dialer)
+	engine.Start()
 
 	for {
 		conn, err := ln.Accept()
@@ -72,6 +65,6 @@ func main() {
 			log.Printf("Failed to accept connection: %v", err)
 			continue
 		}
-		go proxy.handleConnection(conn)
+		go dialer.HandleConnection(conn)
 	}
 }

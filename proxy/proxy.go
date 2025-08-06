@@ -1,4 +1,4 @@
-package main
+package proxy
 
 import (
 	"bufio"
@@ -27,7 +27,7 @@ func NewProxy(mapping map[string]any) *Proxy {
 	}
 }
 
-func (p *Proxy) handleConnection(conn net.Conn) {
+func (p *Proxy) HandleConnection(conn net.Conn) {
 	bufReader := bufio.NewReader(conn)
 	peek, err := bufReader.Peek(1)
 	if err != nil {
