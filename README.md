@@ -17,7 +17,7 @@ From 2023.11.29, MapleStory-Japan updated Nexon Game Security(NGS), it has been 
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/InWILL/MioSocks/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags](https://github.com/InWILL/MioSocks/tags) on this repository. 
 
 ## Contributors
 
