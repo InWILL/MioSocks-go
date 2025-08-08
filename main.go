@@ -39,7 +39,7 @@ func ParseConfig(file string) *Config {
 }
 
 func main() {
-	port := flag.String("p", "2801", "Port to run the server on")
+	port := flag.String("p", "2801", "Port to listen the connection")
 	config := flag.String("c", "config.json", "Path to the configuration file")
 
 	flag.Parse()
