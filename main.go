@@ -39,19 +39,6 @@ func ParseConfig(file string) *Config {
 }
 
 func main() {
-	// h, err := windivert.Open("outbound and !loopback and !ipv6 and (tcp)", windivert.LayerNetwork, 0, 0)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// buffer := make([]byte, 1500)
-	// address := &windivert.Address{}
-	// log.Printf("handle: %d", h)
-	// for {
-	// 	h.Recv(buffer, address)
-	// 	log.Printf("addr: %d\n", address.Timestamp)
-	// }
-	// return
-
 	port := flag.String("p", "2801", "Port to listen the connection")
 	config := flag.String("c", "config.json", "Path to the configuration file")
 
