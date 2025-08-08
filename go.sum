@@ -80,8 +80,6 @@ github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/ad
 github.com/hashicorp/yamux v0.1.2 h1:XtB8kyFOyHXYVFnwT5C3+Bdo8gArse7j2AQ0DA0Uey8=
 github.com/hashicorp/yamux v0.1.2/go.mod h1:C+zze2n6e/7wshOZep2A70/aQU6QBRWJO/G6FT1wIns=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
-github.com/imgk/divert-go v0.1.0 h1:PTB6jsmj5j2ymDBaiyhh0mzQ8ldma10mNaq1tknJysM=
-github.com/imgk/divert-go v0.1.0/go.mod h1:8j670dnMAWuHP3AHj7Zd8b4HhGw4mdTo8aYhCWNsAeU=
 github.com/imgk/shadow v0.0.0-20200807110908-5ffdc22106cb h1:IMc22ExGG977jX7VcvebZ9kIJ0vEyEgV1t9WFbsU1go=
 github.com/imgk/shadow v0.0.0-20200807110908-5ffdc22106cb/go.mod h1:yO9PKFutPjU/KdB+l/VGmIgaV+nTInpGi9I3yJ1OTA8=
 github.com/insomniacslk/dhcp v0.0.0-20250109001534-8abf58130905 h1:q3OEI9RaN/wwcx+qgGo6ZaoJkCiDYe/gjDLfq7lQQF4=

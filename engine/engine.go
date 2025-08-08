@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/InWILL/MioSocks/windivert"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"github.com/imgk/divert-go"
 	shadow "github.com/imgk/shadow/utils"
 	"github.com/metacubex/mihomo/constant"
 )
@@ -21,7 +21,7 @@ const (
 
 type Packet struct {
 	buffer    []byte
-	address   *divert.Address
+	address   *windivert.Address
 	timestamp time.Time
 	tuple     Tuple
 }
@@ -33,8 +33,8 @@ type Tuple struct {
 }
 
 type Engine struct {
-	hSocket  *divert.Handle
-	hNetwork *divert.Handle
+	hSocket  *windivert.Handle
+	hNetwork *windivert.Handle
 	channel  chan Packet
 	Process  map[uint32]bool
 	session  sync.Map
@@ -44,12 +44,12 @@ type Engine struct {
 }
 
 func NewEngine(dialer constant.Proxy) *Engine {
-	h1, err := divert.Open(Filter1, divert.LayerSocket, 0, divert.FlagRecvOnly|divert.FlagSniff)
+	h1, err := windivert.Open(Filter1, windivert.LayerSocket, 0, windivert.FlagRecvOnly|windivert.FlagSniff)
 	if err != nil {
 		panic(err)
 	}
 
-	h2, err := divert.Open(Filter2, divert.LayerNetwork, 1, 0)
+	h2, err := windivert.Open(Filter2, windivert.LayerNetwork, 1, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -73,7 +73,7 @@ func (e *Engine) Start() {
 
 func (e *Engine) SocketLayer() {
 	buffer := make([]byte, mtu)
-	address := &divert.Address{}
+	address := &windivert.Address{}
 	for {
 		_, err := e.hSocket.Recv(buffer, address)
 		if err != nil {
@@ -111,7 +111,7 @@ func (e *Engine) SocketLayer() {
 
 func (e *Engine) NetworkLayer() {
 	buffer := make([]byte, mtu)
-	address := &divert.Address{}
+	address := &windivert.Address{}
 	for {
 		_, err := e.hNetwork.Recv(buffer, address)
 		if err != nil {
@@ -184,10 +184,11 @@ func (e *Engine) PacketHandler() {
 
 func (e *Engine) NetStack_Output(buffer []byte) (int, error) {
 	log.Println("NetStack_Output")
-	address := divert.Address{}
-	const f = uint8(0x01<<7) | uint8(0x01<<6) | uint8(0x01<<5)
+	address := windivert.Address{}
+	const f = uint8(0x01<<0) | uint8(0x01<<1) | uint8(0x01<<2)
 	address.Flags |= f
-	address.Network().InterfaceIndex = 7
+	//address.Network().InterfaceIndex = 7
+	//windivert.HelperCalcChecksums(buffer, &address)
 	size, err := e.hNetwork.Send(buffer, &address)
-	return int(size), err
+	return size, err
 }

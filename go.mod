@@ -5,9 +5,9 @@ go 1.24.2
 require (
 	github.com/eycorsican/go-tun2socks v1.16.9
 	github.com/google/gopacket v1.1.19
-	github.com/imgk/divert-go v0.1.0
 	github.com/imgk/shadow v0.0.0-20200807110908-5ffdc22106cb
 	github.com/metacubex/mihomo v1.19.12
+	golang.org/x/sys v0.30.0
 )
 
 require (
@@ -91,7 +91,6 @@ require (
 	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.7.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
