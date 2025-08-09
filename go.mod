@@ -5,7 +5,6 @@ go 1.24.2
 require (
 	github.com/eycorsican/go-tun2socks v1.16.9
 	github.com/google/gopacket v1.1.19
-	github.com/imgk/shadow v0.0.0-20200807110908-5ffdc22106cb
 	github.com/metacubex/mihomo v1.19.12
 	golang.org/x/sys v0.30.0
 )

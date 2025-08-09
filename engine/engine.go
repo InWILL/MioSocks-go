@@ -9,7 +9,6 @@ import (
 	"github.com/InWILL/MioSocks/windivert"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	shadow "github.com/imgk/shadow/utils"
 	"github.com/metacubex/mihomo/constant"
 )
 
@@ -39,7 +38,7 @@ type Engine struct {
 	Process  map[uint32]bool
 	session  sync.Map
 	writer   io.Writer
-	Queue    []Packet
+	queue    Queue[Packet]
 	dialer   constant.Proxy
 }
 
@@ -97,7 +96,7 @@ func (e *Engine) SocketLayer() {
 				e.session.LoadOrStore(tuple, false)
 			}
 		} else {
-			name, _ := shadow.QueryName(PID)
+			name, _ := GetProcName(PID)
 			log.Printf("Program:%s PID:%d %d:%d\n", name, PID, SrcPort, DstPort)
 			if name == "MapleStory.exe" {
 				e.Process[PID] = true
@@ -158,26 +157,24 @@ func (e *Engine) PacketHandler() {
 	for {
 		select {
 		case packet := <-e.channel:
-			e.Queue = append(e.Queue, packet)
+			e.queue.push(packet)
 		case <-ticker.C:
 			now := time.Now()
-			index := 0
-			for _, item := range e.Queue {
-				if now.After(item.timestamp.Add(timeout)) {
-					if val, ok := e.session.Load(item.tuple); ok && (val == true) {
-						e.writer.Write(item.buffer)
-					} else {
-						_, err := e.hNetwork.Send(item.buffer, item.address)
-						if err != nil {
-							log.Printf("[PacketHandler] Failed to send packet: %v\n", err)
-						}
-					}
-					index++
-				} else {
+			for !e.queue.empty() {
+				item := e.queue.front()
+				if now.Before(item.timestamp.Add(timeout)) {
 					break
 				}
+				e.queue.pop()
+				if val, ok := e.session.Load(item.tuple); ok && (val == true) {
+					e.writer.Write(item.buffer)
+				} else {
+					_, err := e.hNetwork.Send(item.buffer, item.address)
+					if err != nil {
+						log.Printf("[PacketHandler] Failed to send packet: %v\n", err)
+					}
+				}
 			}
-			e.Queue = e.Queue[index:]
 		}
 	}
 }
